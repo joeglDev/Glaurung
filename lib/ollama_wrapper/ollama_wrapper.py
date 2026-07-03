@@ -36,16 +36,3 @@ class OllamaWrapper:
             model=self.model_name, messages=messages, stream=True
         ):
             yield chunk
-
-
-"""
-wrapper = OllamaWrapper("gemma4:e2b")
-
-async def main(
-):
-    stream = wrapper.get_completion(prompt="say hello")
-    async for chunk in stream:
-        print(chunk.message.content)
-
-asyncio.run(main())
-"""
