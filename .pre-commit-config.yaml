@@ -1,0 +1,18 @@
+repos:
+  - repo: local
+    hooks:
+      - id: lint
+        name: Lint
+        entry: uv run ruff check
+        language: system
+        types_or: [python, pyi]
+      - id: format
+        name: Format
+        entry: uv run ruff format
+        language: system
+        types_or: [ python, pyi ]
+      - id: type-check
+        name: Type check
+        entry: uv run ty check
+        language: system
+        types_or: [ python, pyi ]
