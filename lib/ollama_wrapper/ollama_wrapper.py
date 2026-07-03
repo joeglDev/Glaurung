@@ -1,4 +1,6 @@
-import ollama
+from typing import AsyncIterable
+from lib.ollama_wrapper.SYSTEM_PROMPT import SYSTEM_PROMPT
+from ollama import list, ChatResponse, AsyncClient
 
 
 class OllamaWrapper:
@@ -8,7 +10,7 @@ class OllamaWrapper:
 
     def _check_model(self):
         try:
-            available_models = ollama.list()
+            available_models = list()
             models_count = len(available_models.models)
 
             print(f"There are {models_count} models available:")
@@ -24,9 +26,26 @@ class OllamaWrapper:
             print(e)
             raise e
 
-    def run(self):
-        pass
+    async def get_completion(self, prompt: str) -> AsyncIterable[ChatResponse]:
+        messages = [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": prompt},
+        ]
+
+        async for chunk in await AsyncClient().chat(  # noqa: F821
+            model=self.model_name, messages=messages, stream=True
+        ):
+            yield chunk
 
 
-# wrapper = OllamaWrapper("gemma4:e2b")
-# wrapper.run()
+"""
+wrapper = OllamaWrapper("gemma4:e2b")
+
+async def main(
+):
+    stream = wrapper.get_completion(prompt="say hello")
+    async for chunk in stream:
+        print(chunk.message.content)
+
+asyncio.run(main())
+"""
