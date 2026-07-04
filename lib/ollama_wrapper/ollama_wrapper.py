@@ -1,6 +1,9 @@
+from uuid import uuid1
 from typing import AsyncIterable
 from lib.ollama_wrapper.SYSTEM_PROMPT import SYSTEM_PROMPT
 from ollama import list, ChatResponse, AsyncClient
+
+from models.client_chat_response import ClientChatResponse
 
 
 class OllamaWrapper:
@@ -26,13 +29,26 @@ class OllamaWrapper:
             print(e)
             raise e
 
-    async def get_completion(self, prompt: str) -> AsyncIterable[ChatResponse]:
+    async def _get_completion(self, prompt: str) -> AsyncIterable[ChatResponse]:
         messages = [
-            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "system", "content": SYSTEM_PROMPT},  # todo: use python dataclass
             {"role": "user", "content": prompt},
         ]
 
-        async for chunk in await AsyncClient().chat(  # noqa: F821
+        # todo return a2a compliant dict
+        async for chunk in await AsyncClient().chat(
             model=self.model_name, messages=messages, stream=True
         ):
             yield chunk
+
+    async def get_response(self, prompt: str) -> AsyncIterable[ClientChatResponse]:
+        stream = self._get_completion(prompt=prompt)
+        async for chunk in stream:
+            role = "AGENT" if chunk.message.role == "assistant" else "TOOL"
+            status = "WORKING"
+            message_id = f"{uuid1()}"  # todo add message number here
+
+            response = ClientChatResponse(
+                message=chunk.message.content, role=role, status=status, id=message_id
+            )
+            yield response

@@ -1,4 +1,4 @@
-from typing import AsyncGenerator
+from typing import AsyncIterable
 
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
@@ -14,8 +14,7 @@ def ping():
 
 
 @app.post("/chat/stream", response_class=StreamingResponse)
-async def get_chat_completion(prompt: str) -> AsyncGenerator[str | None]:
+async def get_chat_completion(prompt: str) -> AsyncIterable[str]:
     wrapper = OllamaWrapper("gemma4:e2b")
-    stream = wrapper.get_completion(prompt=prompt)
-    async for chunk in stream:
-        yield chunk.message.content
+    async for chunk in wrapper.get_response(prompt):
+        yield chunk.model_dump_json() + "\n"
