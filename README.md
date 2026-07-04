@@ -11,6 +11,12 @@ This agent uses [Ollama](https://ollama.com/) to provide local inference. Please
 1. Run `uv sync` to install dependencies.
 2. Start the server with `uv run fastapi dev`.
 
+## A2A
+
+This project attempts to be compliant with the Agent2Agent (A2A) protocol.
+
+- An agent card is available at the endpoint `/.well-known/agent-card.json`.
+
 ## Thats an interesting name
 
 Yes, this system is named after Glaurung from JRR Tolkien's The Silmarillion. Glaurung is powerful but evil and manipulative.
