@@ -1,3 +1,4 @@
+from lib.card.glaurung_agent_card import GlaurungAgentCard
 from typing import AsyncIterable
 
 from fastapi import FastAPI
@@ -9,8 +10,14 @@ app = FastAPI()
 
 
 @app.get("/")
-def ping():
+def ping() -> str:
     return "pong"
+
+
+@app.get("/.well-known/agent-card.json")
+def fetch_agent_card():
+    agent_card = GlaurungAgentCard()
+    return agent_card.get_agent_card()
 
 
 @app.post("/chat/stream", response_class=StreamingResponse)

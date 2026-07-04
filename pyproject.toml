@@ -5,8 +5,11 @@ description = "A custom agentic system with local inference."
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
+    "a2a-sdk>=1.1.0",
     "fastapi[standard]>=0.139.0",
+    "google>=3.0.0",
     "ollama>=0.6.2",
+    "protobuf>=6.33.6",
     "pydantic>=2.13.4",
     "uuid>=1.30",
 ]
