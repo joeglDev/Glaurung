@@ -1,9 +1,12 @@
+from dataclasses import asdict
+from models.chat.ollama_roles import OllamaRoles
+from models.chat.chat_message import ChatMessage
 from uuid import uuid1
 from typing import AsyncIterable
 from lib.ollama_wrapper.SYSTEM_PROMPT import SYSTEM_PROMPT
 from ollama import list, ChatResponse, AsyncClient
 
-from models.client_chat_response import ClientChatResponse
+from models.responses.client_chat_response import ClientChatResponse
 
 
 class OllamaWrapper:
@@ -31,13 +34,15 @@ class OllamaWrapper:
 
     async def _get_completion(self, prompt: str) -> AsyncIterable[ChatResponse]:
         messages = [
-            {"role": "system", "content": SYSTEM_PROMPT},  # todo: use python dataclass
-            {"role": "user", "content": prompt},
+            ChatMessage(role=OllamaRoles.SYSTEM, content=SYSTEM_PROMPT),
+            ChatMessage(role=OllamaRoles.USER, content=prompt),
         ]
 
         # todo return a2a compliant dict
         async for chunk in await AsyncClient().chat(
-            model=self.model_name, messages=messages, stream=True
+            model=self.model_name,
+            messages=[asdict(message) for message in messages],
+            stream=True,
         ):
             yield chunk
 
