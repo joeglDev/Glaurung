@@ -13,6 +13,7 @@ class OllamaWrapper:
     def __init__(self, model_name: str):
         self.model_name = model_name
         self._check_model()
+        self._messages = [ChatMessage(role=OllamaRoles.SYSTEM, content=SYSTEM_PROMPT)]
 
     def _check_model(self):
         try:
@@ -37,15 +38,12 @@ class OllamaWrapper:
             raise e
 
     async def _get_completion(self, prompt: str) -> AsyncIterable[ChatResponse]:
-        messages = [
-            ChatMessage(role=OllamaRoles.SYSTEM, content=SYSTEM_PROMPT),
-            ChatMessage(role=OllamaRoles.USER, content=prompt),
-        ]
+        self._messages.append(ChatMessage(role=OllamaRoles.USER, content=prompt))
 
         # todo return a2a compliant dict
         async for chunk in await AsyncClient().chat(
             model=self.model_name,
-            messages=[asdict(message) for message in messages],
+            messages=[asdict(message) for message in self._messages],
             stream=True,
         ):
             yield chunk
@@ -61,6 +59,10 @@ class OllamaWrapper:
                 full_completion += chunk.message.content
 
             if chunk.done:
+                self._messages.append(
+                    ChatMessage(role=OllamaRoles.ASSISTANT, content=full_completion)
+                )
+
                 yield ClientChatResponse(
                     message=full_completion,
                     role="AGENT",
