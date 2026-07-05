@@ -1,3 +1,4 @@
+from models.requests.chat_stream_request import ChatStreamRequest
 from lib.card.glaurung_agent_card import GlaurungAgentCard
 from typing import AsyncIterable
 
@@ -21,7 +22,7 @@ def fetch_agent_card():
 
 
 @app.post("/chat/stream", response_class=StreamingResponse)
-async def get_chat_completion(prompt: str) -> AsyncIterable[str]:
+async def get_chat_completion(req: ChatStreamRequest) -> AsyncIterable[str]:
     wrapper = OllamaWrapper("gemma4:e2b")
-    async for chunk in wrapper.get_response(prompt):
+    async for chunk in wrapper.get_response(req.prompt):
         yield chunk.model_dump_json() + "\n"

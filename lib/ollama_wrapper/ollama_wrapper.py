@@ -3,7 +3,7 @@ from models.chat.ollama_roles import OllamaRoles
 from models.chat.chat_message import ChatMessage
 from uuid import uuid1
 from typing import AsyncIterable
-from lib.ollama_wrapper.SYSTEM_PROMPT import SYSTEM_PROMPT
+from lib.prompts.SYSTEM_PROMPT import SYSTEM_PROMPT
 from ollama import list, ChatResponse, AsyncClient
 
 from models.responses.client_chat_response import ClientChatResponse
