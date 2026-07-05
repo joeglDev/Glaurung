@@ -53,7 +53,6 @@ class OllamaWrapper:
         async for chunk in stream:
             message_id = f"{uuid1()}"  # todo add message number here
 
-            # TODO: move below to helper
             if chunk.message.content:
                 full_completion += chunk.message.content
 
@@ -64,7 +63,6 @@ class OllamaWrapper:
                     status="COMPLETE",
                     id=message_id,
                 )
-                # TODO: move above to helper
 
             if not chunk.done:
                 role = "AGENT" if chunk.message.role == "assistant" else "TOOL"
