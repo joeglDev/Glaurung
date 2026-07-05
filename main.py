@@ -23,6 +23,9 @@ def fetch_agent_card():
 
 @app.post("/chat/stream", response_class=StreamingResponse)
 async def get_chat_completion(req: ChatStreamRequest) -> AsyncIterable[str]:
-    wrapper = OllamaWrapper("gemma4:e2b")
-    async for chunk in wrapper.get_response(req.prompt):
-        yield chunk.model_dump_json() + "\n"
+    try:
+        wrapper = OllamaWrapper("gemma4:e2b")
+        async for chunk in wrapper.get_response(req.prompt):
+            yield chunk.model_dump_json() + "\n"
+    except Exception as e:
+        print(e)  # TODO: In production log e and sanitise errors returns for users

@@ -18,18 +18,22 @@ class OllamaWrapper:
         try:
             available_models = list()
             models_count = len(available_models.models)
-
-            print(f"There are {models_count} models available:")
+            model_names = [x.model.strip() for x in available_models.models if x.model]
 
             if models_count == 0:
                 raise Exception(
                     "No models are available. Please use ollama to install a local model."
                 )
             else:
-                for model in available_models.models:
-                    print(model.model)
+                print(f"There are {models_count} models available:")
+                print(model_names)
+
+                if all(self.model_name.strip() != x for x in model_names):
+                    raise Exception(
+                        f"Model {self.model_name} not available. Please download this model to ollama first."
+                    )
+
         except Exception as e:
-            print(e)
             raise e
 
     async def _get_completion(self, prompt: str) -> AsyncIterable[ChatResponse]:
