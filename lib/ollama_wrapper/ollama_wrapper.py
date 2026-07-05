@@ -47,13 +47,33 @@ class OllamaWrapper:
             yield chunk
 
     async def get_response(self, prompt: str) -> AsyncIterable[ClientChatResponse]:
+        full_completion = ""
         stream = self._get_completion(prompt=prompt)
+
         async for chunk in stream:
-            role = "AGENT" if chunk.message.role == "assistant" else "TOOL"
-            status = "WORKING"
             message_id = f"{uuid1()}"  # todo add message number here
 
-            response = ClientChatResponse(
-                message=chunk.message.content, role=role, status=status, id=message_id
-            )
-            yield response
+            # TODO: move below to helper
+            if chunk.message.content:
+                full_completion += chunk.message.content
+
+            if chunk.done:
+                yield ClientChatResponse(
+                    message=full_completion,
+                    role="AGENT",
+                    status="COMPLETE",
+                    id=message_id,
+                )
+                # TODO: move above to helper
+
+            if not chunk.done:
+                role = "AGENT" if chunk.message.role == "assistant" else "TOOL"
+                status = "WORKING"
+
+                response = ClientChatResponse(
+                    message=chunk.message.content,
+                    role=role,
+                    status=status,
+                    id=message_id,
+                )
+                yield response
