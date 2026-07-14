@@ -1,3 +1,4 @@
+from lib.chat_orchestrator.chat_orchestrator import ChatOrchestrator
 from models.requests.chat_stream_request import ChatStreamRequest
 from lib.card.glaurung_agent_card import GlaurungAgentCard
 from typing import AsyncIterable
@@ -5,7 +6,6 @@ from typing import AsyncIterable
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 
-from lib.ollama_wrapper.ollama_wrapper import OllamaWrapper
 
 app = FastAPI()
 
@@ -24,8 +24,8 @@ def fetch_agent_card():
 @app.post("/chat/stream", response_class=StreamingResponse)
 async def get_chat_completion(req: ChatStreamRequest) -> AsyncIterable[str]:
     try:
-        wrapper = OllamaWrapper("gemma4:e2b")
-        async for chunk in wrapper.get_response(req.prompt):
+        chat = ChatOrchestrator("gemma4:e2b")
+        async for chunk in chat.chat(req.prompt):
             yield chunk.model_dump_json() + "\n"
     except Exception as e:
         print(e)  # TODO: In production log e and sanitise errors returns for users

@@ -3,6 +3,6 @@ from dataclasses import dataclass
 
 
 @dataclass
-class ChatMessage:
+class OllamaMessage:
     role: OllamaRoles
     content: str

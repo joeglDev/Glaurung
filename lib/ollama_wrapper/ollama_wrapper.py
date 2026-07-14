@@ -1,23 +1,17 @@
 from dataclasses import asdict
-from models.chat.ollama_roles import OllamaRoles
-from models.chat.chat_message import ChatMessage
-from uuid import uuid1
-from typing import AsyncIterable
-from lib.prompts.SYSTEM_PROMPT import SYSTEM_PROMPT
-from ollama import list, ChatResponse, AsyncClient
-
-from models.responses.client_chat_response import ClientChatResponse
+from models.chat.ollama_message import OllamaMessage
+from typing import AsyncIterable, List
+from ollama import list as ollama_list, ChatResponse, AsyncClient
 
 
 class OllamaWrapper:
     def __init__(self, model_name: str):
         self.model_name = model_name
         self._check_model()
-        self._messages = [ChatMessage(role=OllamaRoles.SYSTEM, content=SYSTEM_PROMPT)]
 
     def _check_model(self):
         try:
-            available_models = list()
+            available_models = ollama_list()
             models_count = len(available_models.models)
             model_names = [x.model.strip() for x in available_models.models if x.model]
 
@@ -37,47 +31,14 @@ class OllamaWrapper:
         except Exception as e:
             raise e
 
-    async def _get_completion(self, prompt: str) -> AsyncIterable[ChatResponse]:
-        self._messages.append(ChatMessage(role=OllamaRoles.USER, content=prompt))
+    async def get_completion(
+        self, messages: List[OllamaMessage]
+    ) -> AsyncIterable[ChatResponse]:
+        messages_as_dict = [asdict(message) for message in messages]
 
-        # todo return a2a compliant dict
         async for chunk in await AsyncClient().chat(
             model=self.model_name,
-            messages=[asdict(message) for message in self._messages],
+            messages=messages_as_dict,
             stream=True,
         ):
             yield chunk
-
-    async def get_response(self, prompt: str) -> AsyncIterable[ClientChatResponse]:
-        full_completion = ""
-        stream = self._get_completion(prompt=prompt)
-
-        async for chunk in stream:
-            message_id = f"{uuid1()}"  # todo add message number here
-
-            if chunk.message.content:
-                full_completion += chunk.message.content
-
-            if chunk.done:
-                self._messages.append(
-                    ChatMessage(role=OllamaRoles.ASSISTANT, content=full_completion)
-                )
-
-                yield ClientChatResponse(
-                    message=full_completion,
-                    role="AGENT",
-                    status="COMPLETE",
-                    id=message_id,
-                )
-
-            if not chunk.done:
-                role = "AGENT" if chunk.message.role == "assistant" else "TOOL"
-                status = "WORKING"
-
-                response = ClientChatResponse(
-                    message=chunk.message.content,
-                    role=role,
-                    status=status,
-                    id=message_id,
-                )
-                yield response
