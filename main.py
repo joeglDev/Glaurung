@@ -6,8 +6,8 @@ from typing import AsyncIterable
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 
-
 app = FastAPI()
+chat = ChatOrchestrator("gemma4:e2b")
 
 
 @app.get("/")
@@ -24,7 +24,6 @@ def fetch_agent_card():
 @app.post("/chat/stream", response_class=StreamingResponse)
 async def get_chat_completion(req: ChatStreamRequest) -> AsyncIterable[str]:
     try:
-        chat = ChatOrchestrator("gemma4:e2b")
         async for chunk in chat.chat(req.prompt):
             yield chunk.model_dump_json() + "\n"
     except Exception as e:
