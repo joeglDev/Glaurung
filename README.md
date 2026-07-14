@@ -20,9 +20,21 @@ curl -X POST "http://127.0.0.1:8000/chat/stream" \
 
 ## A2A
 
-This project attempts to be compliant with the Agent2Agent (A2A) protocol.
+This project exposes an agent card describing its capabilities.
 
 - An agent card is available at the endpoint `/.well-known/agent-card.json`.
+
+### Roles
+
+- *AGENT* - The ai agent itself
+- *TOOL* - A tool called by the agent e.g. searching the web
+
+### Status
+
+- *PENDING* - Agent is yet to begin working on the task.
+- *WORKING* - Agent is currently generating a reply.
+- *THINKING* - Agent is currently thinking.
+- *COMPLETE* - Agent has generated a reply.
 
 ## Thats an interesting name
 
