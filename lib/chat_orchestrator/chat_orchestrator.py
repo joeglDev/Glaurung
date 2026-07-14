@@ -1,3 +1,4 @@
+from lib.utils.get_message_status import get_message_status
 from typing import AsyncIterable
 from uuid import uuid1
 
@@ -5,7 +6,11 @@ from lib.ollama_wrapper.ollama_wrapper import OllamaWrapper
 from lib.prompts.SYSTEM_PROMPT import SYSTEM_PROMPT
 from models.chat.ollama_message import OllamaMessage
 from models.chat.ollama_roles import OllamaRoles
-from models.responses.client_chat_response import ClientChatResponse
+from models.responses.client_chat_response import (
+    ClientChatResponse,
+    ChatResponseStatus,
+    ChatResponseRole,
+)
 
 
 class ChatOrchestrator:
@@ -31,14 +36,18 @@ class ChatOrchestrator:
 
                 yield ClientChatResponse(
                     message=full_completion,
-                    role="AGENT",  # todo enum
-                    status="COMPLETE",
+                    role=ChatResponseRole.AGENT,
+                    status=ChatResponseStatus.COMPLETE,
                     id=message_id,
                 )
 
             if not chunk.done:
-                role = "AGENT" if chunk.message.role == "assistant" else "TOOL"
-                status = "WORKING"
+                role = (
+                    ChatResponseRole.AGENT
+                    if chunk.message.role == "assistant"
+                    else ChatResponseRole.TOOL
+                )
+                status = get_message_status(chunk.message)
 
                 response = ClientChatResponse(
                     message=chunk.message.content,
