@@ -1,4 +1,5 @@
 from dataclasses import asdict
+from lib.ollama_wrapper.tools.available_tools import available_tools
 from models.chat.ollama_message import OllamaMessage
 from typing import AsyncIterable, List
 from ollama import list as ollama_list, ChatResponse, AsyncClient
@@ -39,6 +40,7 @@ class OllamaWrapper:
         async for chunk in await AsyncClient().chat(
             model=self.model_name,
             messages=messages_as_dict,
+            tools=available_tools.values(),
             stream=True,
-        ):
+        ):  # ty:ignore[no-matching-overload]
             yield chunk

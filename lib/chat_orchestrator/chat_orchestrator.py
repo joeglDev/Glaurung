@@ -21,6 +21,7 @@ class ChatOrchestrator:
 
     async def _get_response(self) -> AsyncIterable[ClientChatResponse]:
         full_completion = ""
+
         stream = self._inference.get_completion(messages=self._messages)
 
         async for chunk in stream:
@@ -33,6 +34,25 @@ class ChatOrchestrator:
                 self._messages.append(
                     OllamaMessage(role=OllamaRoles.ASSISTANT, content=full_completion)
                 )
+                """
+                tool_calls = chunk.message.tool_calls
+                if tool_calls:
+                    print(tool_calls)
+                    for tc in tool_calls:
+                        print(tc)
+                        if tc.function.name in available_tools:
+                            result = available_tools[tc.function.name](
+                                **tc.function.arguments
+                            )
+                            print(f"Result: {result}")
+                            # add the tool result to the messages
+                            self._messages.append(
+                                OllamaMessage(
+                                    role=OllamaRoles.ASSISTANT,
+                                    content=f"Tool name: {tc.function.name}, result: {str(result)}",
+                                )
+                            )
+                            """
 
                 yield ClientChatResponse(
                     message=full_completion,
