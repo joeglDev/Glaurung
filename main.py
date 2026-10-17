@@ -7,7 +7,6 @@ from typing import AsyncIterable
 from fastapi import FastAPI
 
 app = FastAPI()
-chat = ChatOrchestrator("gemma4:e2b")
 
 
 @app.get("/")
@@ -25,6 +24,8 @@ def fetch_agent_card():
 async def get_chat_completion(
     req: ChatStreamRequest,
 ) -> AsyncIterable[ClientChatResponse]:
+    chat = ChatOrchestrator("gemma4:e2b")
+
     try:
         for response in chat.chat(req.prompt):
             yield response
