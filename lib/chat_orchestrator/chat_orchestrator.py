@@ -1,5 +1,4 @@
-from lib.utils.get_message_status import get_message_status
-from typing import AsyncIterable
+from typing import Iterator
 from uuid import uuid1
 
 from lib.ollama_wrapper.ollama_wrapper import OllamaWrapper
@@ -18,48 +17,24 @@ class ChatOrchestrator:
         self._model_name = model_name
         self._inference = OllamaWrapper(self._model_name)
         self._messages = [OllamaMessage(role=OllamaRoles.SYSTEM, content=SYSTEM_PROMPT)]
+        self.current_interation = 0
 
-    async def _get_response(self) -> AsyncIterable[ClientChatResponse]:
-        full_completion = ""
-        stream = self._inference.get_completion(messages=self._messages)
+    def _get_response(self) -> ClientChatResponse:
+        message_id = f"{self.current_interation}-{uuid1()}"
+        completion = self._inference.get_completion(messages=self._messages)
+        print(f"role: {completion.message.role}")
+        print(f"thinking: {completion.message.thinking}")
 
-        async for chunk in stream:
-            message_id = f"{uuid1()}"  # todo add message number here
+        return ClientChatResponse(
+            message=completion.message.content,
+            role=ChatResponseRole.AGENT,
+            status=ChatResponseStatus.COMPLETE,
+            id=message_id,
+        )
 
-            if chunk.message.content:
-                full_completion += chunk.message.content
-
-            if chunk.done:
-                self._messages.append(
-                    OllamaMessage(role=OllamaRoles.ASSISTANT, content=full_completion)
-                )
-
-                yield ClientChatResponse(
-                    message=full_completion,
-                    role=ChatResponseRole.AGENT,
-                    status=ChatResponseStatus.COMPLETE,
-                    id=message_id,
-                )
-
-            if not chunk.done:
-                role = (
-                    ChatResponseRole.AGENT
-                    if chunk.message.role == "assistant"
-                    else ChatResponseRole.TOOL
-                )
-                status = get_message_status(chunk.message)
-
-                response = ClientChatResponse(
-                    message=chunk.message.content,
-                    role=role,
-                    status=status,
-                    id=message_id,
-                )
-                yield response
-
-    async def chat(self, prompt: str) -> AsyncIterable[ClientChatResponse]:
+    def chat(self, prompt: str) -> Iterator[ClientChatResponse]:
         self._messages.append(OllamaMessage(role=OllamaRoles.USER, content=prompt))
-        stream = self._get_response()
 
-        async for msg in stream:
-            yield msg
+        while self.current_interation < 2:
+            self.current_interation += 1
+            yield self._get_response()
