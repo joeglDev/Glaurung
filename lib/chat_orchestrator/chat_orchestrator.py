@@ -11,6 +11,9 @@ from models.responses.client_chat_response import (
     ChatResponseRole,
 )
 
+# If the number of completions in the chat loop exceeds MAXIMUM_ITERATIONS the chat is terminated to conserve resources.
+MAXIMUM_ITERATIONS = 2
+
 
 class ChatOrchestrator:
     def __init__(self, model_name: str):
@@ -36,10 +39,16 @@ class ChatOrchestrator:
             reasoning=completion.message.thinking,
         )
 
+    """
+TODO: Evaluate the response and terminate the while loop if response is adequate.
+
+
+    """
+
     def chat(self, prompt: str) -> Iterator[ClientChatResponse]:
         self._messages.append(OllamaMessage(role=OllamaRoles.USER, content=prompt))
 
-        while self.current_interation < 2:
+        while self.current_interation < MAXIMUM_ITERATIONS:
             self.current_interation += 1
             is_last_iteration = self.current_interation == 2
 
