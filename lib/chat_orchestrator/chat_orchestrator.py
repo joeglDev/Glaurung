@@ -50,7 +50,7 @@ TODO: Evaluate the response and terminate the while loop if response is adequate
 
         while self.current_interation < MAXIMUM_ITERATIONS:
             self.current_interation += 1
-            is_last_iteration = self.current_interation == 2
+            is_last_iteration = self.current_interation == MAXIMUM_ITERATIONS
 
             if is_last_iteration:
                 response = self._get_response()
