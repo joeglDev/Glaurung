@@ -19,3 +19,4 @@ class ClientChatResponse(BaseModel):
     status: str
     message: str | None
     id: str
+    reasoning: str | None
