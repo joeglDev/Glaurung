@@ -1,7 +1,7 @@
 from dataclasses import asdict
 from models.chat.ollama_message import OllamaMessage
-from typing import AsyncIterable, List
-from ollama import list as ollama_list, ChatResponse, AsyncClient, Client
+from typing import List
+from ollama import list as ollama_list, ChatResponse, Client
 
 
 class OllamaWrapper:
@@ -30,18 +30,6 @@ class OllamaWrapper:
 
         except Exception as e:
             raise e
-
-    async def get_async_completion(
-        self, messages: List[OllamaMessage]
-    ) -> AsyncIterable[ChatResponse]:
-        messages_as_dict = [asdict(message) for message in messages]
-
-        async for chunk in await AsyncClient().chat(
-            model=self.model_name,
-            messages=messages_as_dict,
-            stream=True,
-        ):
-            yield chunk
 
     def get_completion(self, messages: List[OllamaMessage]) -> ChatResponse:
         messages_as_dict = [asdict(message) for message in messages]

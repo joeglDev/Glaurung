@@ -33,6 +33,7 @@ class ChatOrchestrator:
             role=msg_role,
             status=ChatResponseStatus.WORKING,
             id=message_id,
+            reasoning=completion.message.thinking,
         )
 
     def chat(self, prompt: str) -> Iterator[ClientChatResponse]:
