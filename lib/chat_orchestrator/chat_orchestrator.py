@@ -22,13 +22,16 @@ class ChatOrchestrator:
     def _get_response(self) -> ClientChatResponse:
         message_id = f"{self.current_interation}-{uuid1()}"
         completion = self._inference.get_completion(messages=self._messages)
-        print(f"role: {completion.message.role}")
-        print(f"thinking: {completion.message.thinking}")
+        msg_role = (
+            ChatResponseRole.AGENT
+            if completion.message.role == "assistant"
+            else ChatResponseRole.TOOL
+        )
 
         return ClientChatResponse(
             message=completion.message.content,
-            role=ChatResponseRole.AGENT,
-            status=ChatResponseStatus.COMPLETE,
+            role=msg_role,
+            status=ChatResponseStatus.WORKING,
             id=message_id,
         )
 
@@ -37,4 +40,11 @@ class ChatOrchestrator:
 
         while self.current_interation < 2:
             self.current_interation += 1
-            yield self._get_response()
+            is_last_iteration = self.current_interation == 2
+
+            if is_last_iteration:
+                response = self._get_response()
+                response.status = ChatResponseStatus.COMPLETE
+                yield response
+            else:
+                yield self._get_response()
