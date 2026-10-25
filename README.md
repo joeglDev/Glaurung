@@ -18,6 +18,10 @@ curl -X POST "http://127.0.0.1:8000/chat/stream" \
 -d "{\"prompt\": \"What are you?\"}"
 ```
 
+## Tests
+
+- Run tests with `pytest`
+
 ## A2A
 
 This project exposes an agent card describing its capabilities.

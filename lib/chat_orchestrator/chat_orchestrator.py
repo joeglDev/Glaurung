@@ -1,4 +1,4 @@
-from lib.prompts.EVALUATOR_PROMPT import get_evaluator_prompt
+from lib.prompts.utils.get_evaluator_prompt import get_evaluator_prompt
 from typing import Iterator
 from uuid import uuid1
 

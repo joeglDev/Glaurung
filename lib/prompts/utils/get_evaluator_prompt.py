@@ -19,6 +19,8 @@ The texts to evaluate are below:
 """
 
 
-# TODO: write unite tests
 def get_evaluator_prompt(input_prompt: str, output: str):
+    if input_prompt.strip() == "" or output.strip() == "":
+        raise ValueError("Input and output prompts must have string content.")
+
     return EVALUATOR_PROMPT.format(input_prompt=input_prompt, output=output)
