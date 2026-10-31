@@ -1,11 +1,12 @@
+from dotenv import load_dotenv
 from models.responses.client_chat_response import ClientChatResponse
 from lib.chat_orchestrator.chat_orchestrator import ChatOrchestrator
 from models.requests.chat_stream_request import ChatStreamRequest
 from lib.card.glaurung_agent_card import GlaurungAgentCard
 from typing import AsyncIterable
-
 from fastapi import FastAPI
 
+load_dotenv()
 app = FastAPI()
 
 
@@ -24,7 +25,7 @@ def fetch_agent_card():
 async def get_chat_completion(
     req: ChatStreamRequest,
 ) -> AsyncIterable[ClientChatResponse]:
-    chat = ChatOrchestrator("gemma4:e2b")
+    chat = ChatOrchestrator()
 
     try:
         for response in chat.chat(req.prompt):

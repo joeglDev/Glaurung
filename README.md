@@ -8,8 +8,10 @@ An attempt to create a minimal agentic system using local inference.
 
 This agent uses [Ollama](https://ollama.com/) to provide local inference. Please ensure that Ollama is downloaded and running.
 
-1. Run `uv sync` to install dependencies.
-2. Start the server with `uv run fastapi dev`.
+1. Copy the example environment file with `cp .env.example .env`.
+2. Add the model names that you wish to use to the new `.env` file.
+3. Run `uv sync` to install dependencies.
+4. Start the server with `uv run fastapi dev`.
 
 A simple curl request to test the system might be:
 ```bash

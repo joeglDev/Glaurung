@@ -1,3 +1,4 @@
+from os import getenv
 from lib.prompts.utils.get_evaluator_prompt import get_evaluator_prompt
 from typing import Iterator
 from uuid import uuid1
@@ -13,14 +14,13 @@ from models.responses.client_chat_response import (
 )
 
 # If the number of completions in the chat loop exceeds MAXIMUM_ITERATIONS the chat is terminated to conserve resources.
-MAXIMUM_ITERATIONS = 3
+MAXIMUM_ITERATIONS = 5
 
 
 class ChatOrchestrator:
-    def __init__(self, model_name: str):
-        self._model_name = model_name
-        self._inference = OllamaWrapper(self._model_name)
-        self._evaluator = OllamaWrapper("gemma4:e2b")
+    def __init__(self):
+        self._inference = OllamaWrapper(getenv('MODEL'))
+        self._evaluator = OllamaWrapper(getenv('EVALUATOR_MODEL'))
         self._messages = [OllamaMessage(role=OllamaRoles.SYSTEM, content=SYSTEM_PROMPT)]
         self._current_interation = 0
         self._passes_evaluation = False
